@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+*.egg-info/
+
+# Logs (the folder itself is kept via .gitkeep)
+logs/*
+!logs/.gitkeep
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# data/ is kept on purpose: commit your scraped output.csv / database.db as proof of the run.

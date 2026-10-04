@@ -1,0 +1,170 @@
+# ============================================================
+#  SkillPulse configuration
+#  Secrets (SMTP / Telegram) live in .env, never in this file.
+# ============================================================
+
+app:
+  name: SkillPulse
+  version: "1.0.0"
+
+paths:
+  csv: data/output.csv
+  database: data/database.db
+  log_file: logs/scraper.log
+
+logging:
+  level: INFO
+
+http:
+  timeout_seconds: 20
+  max_retries: 4              # attempts per request (exponential backoff)
+  backoff_min_seconds: 2
+  backoff_max_seconds: 30
+  delay_seconds: 1.5          # polite pause between requests
+  jitter_seconds: 0.75        # random extra pause so traffic looks less robotic
+  respect_robots_txt: true    # HTML sources are checked against robots.txt
+  fallback_user_agents:       # used if fake_useragent cannot load its data
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15"
+    - "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Edg/123.0.0.0 Safari/537.36"
+
+sources:
+  # Sources that run on every pipeline cycle.
+  # Available: fake_jobs (practice site made for scraping), hn_hiring (HN "Who is hiring?" via public API)
+  active:
+    - fake_jobs
+    - hn_hiring
+
+  fake_jobs:
+    base_url: "https://realpython.github.io/fake-jobs/"
+    page_url_template: null     # this practice site has a single page
+    max_pages: 1
+    # Each field has a LIST of CSS selectors; they are tried in order (fallback strategy).
+    selectors:
+      card:     ["div.card-content", "div.card"]
+      title:    ["h2.title", "h2", "h3.title"]
+      company:  ["h3.company", "h3.subtitle", "h3"]
+      location: ["p.location", "p.is-6"]
+      posted:   ["time"]
+      link:     ["footer a.card-footer-item", "a"]
+
+  hn_hiring:
+    search_url: "https://hn.algolia.com/api/v1/search_by_date"
+    threads: 1                  # how many monthly "Who is hiring?" threads to read
+    hits_per_page: 100
+    max_pages: 5                # 5 pages x 100 comments per thread
+
+schedule:
+  interval_hours: 6
+  run_on_start: true
+  timezone: UTC
+
+nlp:
+  use_spacy: true               # falls back to regex-only if the model is not installed
+  spacy_model: en_core_web_sm
+  fuzzy_enabled: true           # catches typos such as "Kuberentes"
+  fuzzy_threshold: 90
+  max_description_chars: 1500
+
+alerts:
+  enabled: true
+  channels: [email, telegram]   # a channel without credentials in .env is skipped
+  keywords: [python, machine learning, llm, remote]   # empty list = alert on every new job
+  max_items_in_digest: 25
+  min_new_records: 1
+
+dashboard:
+  title: "SkillPulse - Tech Job Market Analyzer"
+
+# Skills taxonomy: canonical name -> aliases. Matching is boundary-aware
+# ("Java" will not match inside "JavaScript"), plus fuzzy matching for typos.
+skills:
+  Python: [Python3]
+  JavaScript: [JS, ECMAScript]
+  TypeScript: []
+  Java: []
+  "C++": []
+  "C#": []
+  Go: [Golang]
+  Rust: []
+  Kotlin: []
+  Swift: []
+  Scala: []
+  Ruby: []
+  PHP: []
+  SQL: []
+  React: [React.js, ReactJS]
+  "Next.js": [NextJS]
+  "Vue.js": [Vue, VueJS]
+  Angular: [AngularJS]
+  "Node.js": [NodeJS]
+  Django: []
+  Flask: []
+  FastAPI: []
+  "Spring Boot": [SpringBoot]
+  "Ruby on Rails": [Rails]
+  ".NET": [dotnet, ASP.NET]
+  Laravel: []
+  jQuery: []
+  "Tailwind CSS": [Tailwind]
+  GraphQL: []
+  "REST API": [RESTful, REST APIs]
+  Microservices: []
+  Pandas: []
+  NumPy: []
+  scikit-learn: [sklearn]
+  PyTorch: []
+  TensorFlow: []
+  Keras: []
+  Spark: [PySpark, Apache Spark]
+  Hadoop: []
+  Kafka: [Apache Kafka]
+  Airflow: [Apache Airflow]
+  dbt: []
+  Snowflake: []
+  BigQuery: []
+  Redshift: []
+  Databricks: []
+  Tableau: []
+  Power BI: [PowerBI]
+  Looker: []
+  Excel: []
+  PostgreSQL: [Postgres]
+  MySQL: []
+  MongoDB: [Mongo]
+  Redis: []
+  SQLite: []
+  DynamoDB: []
+  Cassandra: []
+  Elasticsearch: [Elastic Search]
+  AWS: [Amazon Web Services]
+  Azure: []
+  GCP: [Google Cloud]
+  Docker: []
+  Kubernetes: [K8s]
+  Terraform: []
+  Ansible: []
+  Jenkins: []
+  GitHub Actions: []
+  CI/CD: [CICD]
+  Linux: []
+  Git: []
+  Prometheus: []
+  Grafana: []
+  Machine Learning: [ML]
+  Deep Learning: []
+  NLP: [Natural Language Processing]
+  Computer Vision: []
+  LLM: [LLMs, Large Language Models]
+  LangChain: []
+  Generative AI: [GenAI, Gen AI]
+  RAG: [Retrieval-Augmented Generation]
+  MLOps: []
+  Hugging Face: [HuggingFace]
+  Web Scraping: [Scrapy, BeautifulSoup]
+  Selenium: []
+  Flutter: []
+  React Native: []
+  Android: []
+  iOS: []
